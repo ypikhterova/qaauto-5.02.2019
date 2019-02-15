@@ -34,7 +34,7 @@ public class LoginTests {
         }
 
 
-        driver.close();
+        //driver.close();
 
 
     }
