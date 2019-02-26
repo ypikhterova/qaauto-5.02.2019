@@ -5,6 +5,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public class LoginTests {
@@ -17,7 +18,6 @@ public class LoginTests {
     public void beforeMethod() {
 
         System.setProperty("webdriver.chrome.driver", "C:\\Users\\pikhterova_y\\IdeaProjects\\qaauto-5.02.2019\\chromedriver.exe");
-        //WebDriver driver = new ChromeDriver();
         driver = new ChromeDriver();
         driver.get("https://www.linkedin.com/");
     }
@@ -28,66 +28,58 @@ public class LoginTests {
     }
 
 
-    @Test(priority = 1)
-    public void successfulLoginTests() throws InterruptedException {///appeared after  Thread.sleep(1000);
+    @DataProvider
+    public Object[][] ValidData() {
+        return new Object[][]{
+                {"vvizbor5@gmail.com", "TYpochek5_"},
+                {"vVIZBOR5@gmail.com", "TYpochek5_"},
+                {" vvizbor5@gmail.com ", "TYpochek5_"}
+
+        };
+    }
+
+    @Test(dataProvider = "ValidData", priority = 1)
+
+
+    public void successfulLoginTests(String userEmail, String userPassword) throws InterruptedException {
 
 
         LandingPage landingPage = new LandingPage(driver);
-        landingPage.login("vvizbor5@gmail.com", "TYpochek5_");
+        Assert.assertTrue(landingPage.isPageLoaded(), "Landing page is not loaded");
+        landingPage.login(userEmail, userPassword);
 
         Thread.sleep(1000);
 
         HomePage homePage = new HomePage(driver);
+        Assert.assertTrue(homePage.isPageLoaded(), "Home page is not loaded");
 
 
     }
 
-    @Test(priority = 2)
-    public void LoginWrongEmail() throws InterruptedException {
-        LandingPage landingPage = new LandingPage(driver);
-        landingPage.login("vvizbor51@gmail.com", "TYpochek5_");
+    @DataProvider
+    public Object[][] TestData() {
+        return new Object[][]{
+                {"vvizbor51@gmail.com", "TYpochek5_", "Hmm, we don't recognize that email. Please try again.", "", "Wrong validation message text for incorrect email"},
+                {"vVIZBOR5gmail.com", "TYpochek5_", "Please enter a valid email address.", "", "Wrong validation message text for invalid email"},
+                {" vvizbor5@gmail.com ", "TYpochek51_", "", "Hmm, that's not the right password. Please try again or request a new one.", "Wrong validation message text for incorrect password"}
 
-
-        Thread.sleep(1000);
-
-
-        WebElement wrongEmailMessage = driver.findElement(By.xpath("//div[@id=\"error-for-username\"]"));
-
-
-        Assert.assertEquals(wrongEmailMessage.getText(), "Hmm, we don't recognize that email. Please try again.", "Wrong validation message text for incorrect email");
-
+        };
     }
 
-    @Test(priority = 3)
-    public void LoginInvalidEmail() throws InterruptedException {
-
+    @Test(dataProvider = "TestData", priority = 2)
+    public void LoginWrongEmail(String userEmail, String userPassword, String expectedEmailMessage, String expectedPasswordMessage, String errorMessage) throws InterruptedException {
         LandingPage landingPage = new LandingPage(driver);
-        landingPage.login("vvizbor5gmail.com", "TYpochek5_");
+        landingPage.login(userEmail, userPassword);
+
 
         Thread.sleep(1000);
 
-
-        WebElement invalidEmailMessage = driver.findElement(By.xpath("//div[@id=\"error-for-username\"]"));
-
-
-        Assert.assertEquals(invalidEmailMessage.getText(), "Please enter a valid email address.", "Wrong validation message text for invalid email");
-
-    }
+        LoginSubmitPage loginSubmitPage = new LoginSubmitPage(driver);
 
 
-    @Test(priority = 4)
-    public void LoginWrongPassword() throws InterruptedException {
+        Assert.assertEquals(loginSubmitPage.wrongEmailMessage.getText(), expectedEmailMessage, errorMessage);
+        Assert.assertEquals(loginSubmitPage.invalidPasswordMessage.getText(), expectedPasswordMessage, errorMessage);
 
-        LandingPage landingPage = new LandingPage(driver);
-        landingPage.login("vvizbor5@gmail.com", "TYpochek51_");
-
-        Thread.sleep(1000);
-
-
-        WebElement invalidPasswordMessage = driver.findElement(By.xpath("//div[@id='error-for-password']"));
-
-
-        Assert.assertEquals(invalidPasswordMessage.getText(), "Hmm, that's not the right password. Please try again or request a new one.", "Wrong validation message text for incorrect password");
 
     }
 
