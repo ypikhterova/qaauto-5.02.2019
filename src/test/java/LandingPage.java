@@ -18,13 +18,29 @@ public class LandingPage {
         PageFactory.initElements(driver, this);
     }
 
-    public Object login(String userEmail, String userPassword) {
+
+    public <T> T login (String userEmail, String userPassword, Class <T> expectedPage){
+        putEmailField.sendKeys(userEmail);
+        putPasswordField.sendKeys(userPassword + Keys.ENTER);
+        return PageFactory.initElements(driver, expectedPage);
+    }
+
+    public <T> T login (String userEmail, String userPassword){
+        putEmailField.sendKeys(userEmail);
+        putPasswordField.sendKeys(userPassword + Keys.ENTER);
+        if (driver.getCurrentUrl().contains("/feed")) {
+            return (T) new HomePage(driver);
+                    //PageFactory.initElements(driver, HomePage.class);
+        } else {return (T) new LoginSubmitPage(driver);}
+    }
+
+
+    public Object login2(String userEmail, String userPassword) {
 
         putEmailField.sendKeys(userEmail);
         putPasswordField.sendKeys(userPassword + Keys.ENTER);
         return driver.getCurrentUrl().contains("/feed") ? new HomePage(driver) : new LoginSubmitPage(driver);
     }
-        //homePage.isPageLoaded() == true
 
     public boolean isPageLoaded() {
        return putEmailField.isDisplayed()
