@@ -1,28 +1,32 @@
-import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
 
 public class HomePage {
 
     private WebDriver driver;
-    private WebElement profileMenuItem;
+
+    @FindBy(xpath = "//form[@id='extended-nav-search']//input")
+    private WebElement searchField;
+
 
     public HomePage(WebDriver driver) {
         this.driver = driver;
-        initElements();
+        PageFactory.initElements(driver, this);
     }
-
-    private void initElements() {
-        profileMenuItem = driver.findElement(By.xpath("//li[@id='profile-nav-item']"));
-
-    }
-
-
 
     public boolean isPageLoaded() {
-        return profileMenuItem.isDisplayed()
+        return searchField.isDisplayed()
                 && driver.getCurrentUrl().contains("/feed")
                 && driver.getTitle().contains("LinkedIn");
+    }
+
+    public SearchPage search(String searchTerm) {
+        searchField.sendKeys(searchTerm);
+        searchField.sendKeys(Keys.ENTER);
+        return new SearchPage(driver);
     }
 }
 
