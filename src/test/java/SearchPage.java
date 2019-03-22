@@ -1,3 +1,4 @@
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -8,7 +9,7 @@ import java.util.List;
 public class SearchPage {
     private WebDriver driver;
 
-    @FindBy(xpath = "//li[@class='search-result search-result__occluded-item ember-view']")
+    @FindBy(xpath = "//li[contains (@class, 'search-result ')]")
     private List<WebElement> searchResultElements;
 
     @FindBy(xpath = "//h3[contains (@class, 'search-results__total')]")
@@ -27,6 +28,9 @@ public class SearchPage {
 
     public int getSearchResulCount () { return searchResultElements.size();}
 
+    public void scrollDown () { ((JavascriptExecutor) driver).executeScript("scroll(0,5000)");}
+
+
 
     public boolean isResultContainText() {
         String searchTerm = "HR";
@@ -39,6 +43,5 @@ public class SearchPage {
 
         return false;
     }
-
 
 }
